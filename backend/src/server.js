@@ -4,6 +4,8 @@ import cors from "cors";
 import ENV from "./config/env.js";
 import { connectDB } from "./config/db.js";
 import { clerkMiddleware } from "@clerk/clerk-sdk-node";
+const { ClerkExpressRequireAuth, clerkClient } = require("@clerk/express");
+
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 
