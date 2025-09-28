@@ -3,42 +3,39 @@ import "dotenv/config";
 import cors from "cors";
 import ENV from "./config/env.js";
 import { connectDB } from "./config/db.js";
-import { clerkMiddleware } from "@clerk/clerk-sdk-node";
-const { ClerkExpressRequireAuth, clerkClient } = require("@clerk/express");
-
+import { ClerkExpressRequireAuth, clerkClient } from "@clerk/express"; // ESM style
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 
 const app = express();
+
+// Middleware
 app.use(cors());
-const PORT = ENV.PORT;
-
 app.use(express.json());
-app.use(clerkMiddleware());
 
+// Apply Clerk middleware globally
+app.use(ClerkExpressRequireAuth());
+
+// Routes
 app.use("/api/inngest", serve({ client: inngest, functions }));
+
 app.get("/", (req, res) => {
   res.send("Hello World 786");
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-//   connectDB();
-// });
-
+// Start server
 const startServer = async () => {
   try {
     await connectDB();
-    if (ENV.NODE_ENV !== "production") {
-      app.listen(ENV.PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-      });
-    }
+    app.listen(ENV.PORT, () => {
+      console.log(`Server running on port ${ENV.PORT}`);
+    });
   } catch (error) {
     console.error("Failed to start server:", error);
-    process.exit(1); // Exit the process with an error code
+    process.exit(1);
   }
 };
 
 startServer();
+
 export default app;
