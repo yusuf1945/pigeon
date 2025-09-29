@@ -2,15 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "build": "echo 'No build step needed' && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "type": "module",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.7.34",

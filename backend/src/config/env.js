@@ -1,8 +1,8 @@
 import "dotenv/config";
 
-export default {
+const ENV = {
   PORT: process.env.PORT || 3000,
-  MONGO_URL: process.env.MONGO_URL,
+  DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV || "development",
 
   CLERK_PUBLISHABLE_KEY: process.env.CLERK_PUBLISHABLE_KEY,
@@ -13,6 +13,9 @@ export default {
 
   SENTRY_DSN: process.env.SENTRY_DSN,
 
-  INGEST_EVENT_KEY: process.env.INGEST_EVENT_KEY,
-  INGEST_SECRET_KEY: process.env.INGEST_SECRET_KEY,
+  // ✅ Now matches the corrected .env file
+  INNGEST_EVENT_KEY: process.env.INNGEST_EVENT_KEY,
+  INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
 };
+
+export default ENV;

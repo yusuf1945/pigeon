@@ -4,21 +4,28 @@ import User from "../models/user.model.js";
 import "dotenv/config";
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ id: "slack-clone" });
+export const inngest = new Inngest({
+  id: "slack-clone",
+  eventKey: process.env.INNGEST_EVENT_KEY,
+});
 
 const syncUser = inngest.createFunction(
   { id: "sync-user" },
   { event: "clerk/user.created" },
   async ({ event }) => {
     await connectDB();
-    const { id, email_address, first_name, last_name, profile_image_url } =
+    const { id, email_addresses, first_name, last_name, image_url } =
       event.data;
+
+    // ✅ Fixed: Use correct Clerk webhook data structure
+    const email = email_addresses?.[0]?.email_address;
+    const image = image_url;
 
     const newUser = {
       clerkId: id,
-      email: email_address,
-      name: `${first_name || ""} ${last_name || ""}`,
-      image: profile_image_url,
+      email: email,
+      name: `${first_name || ""} ${last_name || ""}`.trim(),
+      image: image,
     };
 
     await User.create(newUser);
@@ -33,10 +40,10 @@ const deleteUserFromDB = inngest.createFunction(
   async ({ event }) => {
     await connectDB();
     const { id } = event.data;
-    await User.deleteOne({ clerkId: id });
-    //todo LATER
+    await User.findOneAndDelete({ clerkId: id });
+    console.log("User deleted from database:", id);
   }
 );
 
-// Create an empty array where we'll export future Inngest functions
+// Export Inngest functions
 export const functions = [syncUser, deleteUserFromDB];
