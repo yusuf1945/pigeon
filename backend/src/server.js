@@ -1,12 +1,11 @@
 import express from "express";
 import "dotenv/config";
 import cors from "cors";
-import ENV from "./config/env.js";
 import { connectDB } from "./config/db.js";
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 
-// ✅ Fix Clerk import for ES Modules - using clerk-sdk-node instead
+// ✅ Fixed Clerk import for ES Modules
 import { createClerkClient } from "@clerk/clerk-sdk-node";
 
 const app = express();
@@ -21,7 +20,7 @@ const clerk = createClerkClient({
 app.use(cors());
 app.use(express.json());
 
-// ✅ Custom auth middleware for ES Modules (remove global auth to avoid 404 issues)
+// ✅ Custom auth middleware (remove global Clerk middleware)
 const requireAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -38,7 +37,6 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-// ✅ REMOVED global Clerk middleware - this was causing deployment issues
 // Routes
 app.use("/api/inngest", serve({ client: inngest, functions }));
 
