@@ -8,6 +8,7 @@ import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -27,9 +28,7 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(ENV.PORT, () => {
-      console.log(`Server running on port ${ENV.PORT}`);
-    });
+    app.listen(port, () => console.log(`Server running on ${port}`));
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
