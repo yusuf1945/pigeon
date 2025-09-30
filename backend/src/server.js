@@ -1,71 +1,47 @@
-import express from "express";
-import "dotenv/config";
-import cors from "cors";
+import "../instrument.mjs"; // 1️⃣ initialize Sentry first
+import express from "express"; // 2️⃣ Express
+import { ENV } from "./config/env.mjs"; // 3️⃣ ENV
 import { connectDB } from "./config/db.js";
+import { clerkMiddleware } from "@clerk/express";
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
+import chatRoutes from "./routes/chat.route.js";
+console.log("chatRoutes loaded:", chatRoutes);
 
-// ✅ Fixed Clerk import for ES Modules
-import { createClerkClient } from "@clerk/clerk-sdk-node";
+import cors from "cors";
+import * as Sentry from "@sentry/node";
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-// Initialize Clerk client
-const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-});
-
-// Middleware
-app.use(cors());
 app.use(express.json());
+app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
+app.use(clerkMiddleware()); // req.auth will be available in the request object
 
-// ✅ Custom auth middleware (remove global Clerk middleware)
-const requireAuth = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: "No authorization header" });
-    }
-
-    const token = authHeader.replace("Bearer ", "");
-    const session = await clerk.verifyToken(token);
-    req.auth = session;
-    next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid token" });
-  }
-};
-
-// Routes
-app.use("/api/inngest", serve({ client: inngest, functions }));
+app.get("/debug-sentry", (req, res) => {
+  throw new Error("My first Sentry error!");
+});
 
 app.get("/", (req, res) => {
-  res.send("Hello World 786 - ES Modules Fixed!");
+  res.send("Hello World! 123");
 });
 
-// Protected route example
-app.get("/protected", requireAuth, (req, res) => {
-  res.json({ user: req.auth });
-});
+app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/chat", chatRoutes);
 
-// Health check route for Vercel
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
-});
+Sentry.setupExpressErrorHandler(app);
+// app.use(Sentry.Handlers.errorHandler());
 
-// Start server
 const startServer = async () => {
   try {
     await connectDB();
-
-    // Only listen locally, Vercel will handle the serverless function
-    if (process.env.NODE_ENV !== "production") {
-      app.listen(port, () => console.log(`Server running on ${port}`));
+    if (ENV.NODE_ENV !== "production") {
+      app.listen(ENV.PORT, () => {
+        console.log("Server started on port:", ENV.PORT);
+      });
     }
   } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
+    console.error("Error starting server:", error);
+    process.exit(1); // Exit the process with a failure code
   }
 };
 
