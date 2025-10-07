@@ -8,7 +8,7 @@ import "dotenv/config";
 // Create Inngest client
 export const inngest = new Inngest({
   id: "slack-clone",
-  eventKey: process.env.INNGEST_EVENT_KEY,
+  signingKey: process.env.INNGEST_SIGNING_KEY,
 });
 
 // ============================
@@ -29,9 +29,9 @@ const syncUser = inngest.createFunction(
 
     const newUser = {
       clerkId: id,
-      name,
-      email,
-      image,
+      email: email_addresses[0]?.email_address,
+      name: `${first_name || ""} ${last_name || ""}`,
+      image: image_url,
     };
 
     // 1️⃣ Save to MongoDB (upsert avoids duplicates)
