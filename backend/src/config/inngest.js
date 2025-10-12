@@ -43,8 +43,12 @@ const syncUser = inngest.createFunction(
     console.log("✅ User saved to MongoDB:", email);
 
     // 2️⃣ Upsert user in Stream.io
-    await upsertStreamUser({ id, name, image });
-    console.log("✅ User upserted in Stream.io:", name);
+    await upsertStreamUser({
+      id: newUser.clerkId.toString(),
+      name: newUser.name,
+      image: newUser.image,
+    });
+    console.log("✅ User upserted in Stream.io:", newUser.name);
 
     // 3️⃣ Add user to all public channels
     await addUserToPublicChannels(id);
