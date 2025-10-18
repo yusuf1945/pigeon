@@ -7,7 +7,7 @@ const AuthPage = () => {
       <div className="auth-left">
         <div className="auth-hero">
           <div className="brand-container">
-            <img src="/logo.png" alt="Pigeon" className="brand-logo" />
+            <img src="/pigeon.png" alt="Pigeon" className="brand-logo" />
             <span className="brand-name">Pigeon</span>
           </div>
 
